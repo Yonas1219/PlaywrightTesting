@@ -1,6 +1,43 @@
 const { test, expect } = require("@playwright/test");
 
 
+test("Add a new task and retrieve from localStorage", async ({ page }) => {
+  // Navigate to the task manager page
+  await page.goto("http://localhost:5500");
+
+  // Add a new task
+  await page.fill("input#task-input", "Task 1");
+  await page.selectOption("select#task-priority", "low");
+  await page.click('form#task-form button[type="submit"]');
+
+  // Wait for the task to be added
+  await page.waitForSelector("ul#task-list li:last-child .task-text");
+
+  // Retrieve tasks from localStorage
+  const localStorageTasks = await page.evaluate(() => {
+    const tasks = localStorage.getItem("tasks");
+    return tasks ? JSON.parse(tasks) : [];
+  });
+
+  // Verify the task is added to the task list
+  const taskText = await page.textContent(
+    "ul#task-list li:last-child .task-text"
+  );
+  const priorityText = await page.textContent(
+    "ul#task-list li:last-child .priority-badge"
+  );
+  expect(taskText).toBe("Task 1");
+  expect(priorityText).toBe("low");
+
+  // Verify the task is stored in localStorage
+  expect(localStorageTasks).toEqual([
+    {
+      text: "Task 1",
+      priority: "low",
+      completed: false,
+    },
+  ]);
+});
 
 //// 1. add a new task
 test("Add a new task", async ({ page }) => {
