@@ -70,7 +70,7 @@ test("Add a new task and retrieve from localStorage", async ({ page }) => {
 test("Add a task without entering text", async ({ page }) => {
   // Navigate to the task manager page
   await page.goto("http://localhost:5500");
-
+  await page.setDefaultTimeout(5000);
   // Add a new task without entering any text
   await page.selectOption("select#task-priority", "medium");
   await page.click('form#task-form button[type="submit"]');
@@ -194,7 +194,7 @@ test("Delete all tasks", async ({ page }) => {
 test("Add a task with empty priority", async ({ page }) => {
   // Navigate to the task manager page
   await page.goto("http://localhost:5500");
-
+  await page.setDefaultTimeout(5000);
   // Add a new task without selecting a priority
   await page.fill("input#task-input", "Task 1");
   await page.click('form#task-form button[type="submit"]');
@@ -213,7 +213,7 @@ test("Add a task with empty priority", async ({ page }) => {
 test('Sort tasks by priority', async ({ page }) => {
     // Navigate to the task manager page
     await page.goto('http://localhost:5500');
-  
+    await page.setDefaultTimeout(5000);
     // Add tasks with different priorities
     await page.fill('input#task-input', 'Task 1');
     await page.selectOption('select#task-priority', 'low');
@@ -244,7 +244,7 @@ test('Sort tasks by priority', async ({ page }) => {
   test('Do not sort tasks without clicking the sort button', async ({ page }) => {
     // Navigate to the task manager page
     await page.goto('http://localhost:5500');
-  
+    await page.setDefaultTimeout(5000);
     // Add tasks with different priorities
     await page.fill('input#task-input', 'Task 1');
     await page.selectOption('select#task-priority', 'low');
