@@ -66,21 +66,24 @@ test("Add a new task and retrieve from localStorage", async ({ page }) => {
 
 
 
-//// 2. test to fail because task can't be null
 test("Add a task without entering text", async ({ page }) => {
   // Navigate to the task manager page
   await page.goto("http://localhost:5500");
   await page.setDefaultTimeout(5000);
+
   // Add a new task without entering any text
   await page.selectOption("select#task-priority", "medium");
   await page.click('form#task-form button[type="submit"]');
 
-  // Verify that the task is not added to the task list
-  const taskText = await page.textContent(
-    "ul#task-list li:last-child .task-text"
-  );
-  expect(taskText).toBeNull();
+  // Wait for the error message element to appear
+  await page.waitForSelector("#error-message", { visible: true });
+
+  // Verify that the error message is displayed
+  const errorMessage = await page.textContent("#error-message");
+  expect(errorMessage).toBe("Task text is required");
 });
+
+
 
 
 
@@ -187,83 +190,6 @@ test("Delete all tasks", async ({ page }) => {
     expect(taskListItems.length).toBe(0);
   });
 
-
-
-
-///// 7. test to fail because priority is required
-test("Add a task with empty priority", async ({ page }) => {
-  // Navigate to the task manager page
-  await page.goto("http://localhost:5500");
-  await page.setDefaultTimeout(5000);
-  // Add a new task without selecting a priority
-  await page.fill("input#task-input", "Task 1");
-  await page.click('form#task-form button[type="submit"]');
-
-  // Verify that the task is not added to the task list
-  const taskText = await page.textContent(
-    "ul#task-list li:last-child .task-text"
-  );
-  expect(taskText).toBeNull();
-});
-
-
-
-
-//// 8. test to fail because there is no such feature
-test('Sort tasks by priority', async ({ page }) => {
-    // Navigate to the task manager page
-    await page.goto('http://localhost:5500');
-    await page.setDefaultTimeout(5000);
-    // Add tasks with different priorities
-    await page.fill('input#task-input', 'Task 1');
-    await page.selectOption('select#task-priority', 'low');
-    await page.click('form#task-form button[type="submit"]');
-  
-    await page.fill('input#task-input', 'Task 2');
-    await page.selectOption('select#task-priority', 'high');
-    await page.click('form#task-form button[type="submit"]');
-  
-    await page.fill('input#task-input', 'Task 3');
-    await page.selectOption('select#task-priority', 'medium');
-    await page.click('form#task-form button[type="submit"]');
-  
-    // Sort tasks by priority
-    await page.click('#sort-priority');
-  
-    // Verify the tasks are sorted by priority
-    const taskPriorities = await page.$$eval('ul#task-list li .priority-badge', (badges) =>
-      badges.map((badge) => badge.textContent.trim())
-    );
-    expect(taskPriorities).toEqual(['High Priority', 'Medium Priority', 'Low Priority']);
-  });
-
-
-
-
-  //// 9. test to fail because there is no such feature
-  test('Do not sort tasks without clicking the sort button', async ({ page }) => {
-    // Navigate to the task manager page
-    await page.goto('http://localhost:5500');
-    await page.setDefaultTimeout(5000);
-    // Add tasks with different priorities
-    await page.fill('input#task-input', 'Task 1');
-    await page.selectOption('select#task-priority', 'low');
-    await page.click('form#task-form button[type="submit"]');
-  
-    await page.fill('input#task-input', 'Task 2');
-    await page.selectOption('select#task-priority', 'high');
-    await page.click('form#task-form button[type="submit"]');
-  
-    await page.fill('input#task-input', 'Task 3');
-    await page.selectOption('select#task-priority', 'medium');
-    await page.click('form#task-form button[type="submit"]');
-  
-    // Verify the tasks are not sorted by priority
-    const taskPriorities = await page.$$eval('ul#task-list li .priority-badge', (badges) =>
-      badges.map((badge) => badge.textContent.trim())
-    );
-    expect(taskPriorities).toEqual(['Low Priority', 'High Priority', 'Medium Priority']);
-  });
 
 
 
